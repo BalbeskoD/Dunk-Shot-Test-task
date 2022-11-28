@@ -14,11 +14,14 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private float basketAngleOffset = 0.3f;
     private int activeBasket;
     private int notActiveBasket = 1;
+    private int _clearInRow;
     private SignalBus _signalBus;
     
 
     public List<Basket> BasketPull => basketPull;
     public int ActiveBasket => activeBasket;
+
+    public int ClearInRow => _clearInRow;
 
     [Inject]
     public void Construct(SignalBus signalBus)
@@ -42,6 +45,7 @@ public class SpawnManager : MonoBehaviour
     {
         ball.transform.position = new Vector2(basketPull[activeBasket].transform.position.x, basketPull[activeBasket].transform.position.y + ballOffset.y);
         ball.gameObject.SetActive(true);
+        basketPull[activeBasket].transform.rotation = new Quaternion(0, 0, 0, 0);
     }
 
     private async void OnGoal()
@@ -81,9 +85,9 @@ public class SpawnManager : MonoBehaviour
         _notActiveBasket.SetActive(false);
         float offsetX;
         float rotateZ;
-        float offsetY = Random.Range(3, 6);
+        float offsetY = Random.Range(4f, 5f);
 
-        int random = Random.Range(1, 2);
+        int random = Random.Range(0, 2);
         switch (random)
         {
             case 0:
@@ -100,10 +104,10 @@ public class SpawnManager : MonoBehaviour
 
         if (notActiveBasket == 0)
         {
-            offsetX = Random.Range(-2f, 0);
+            offsetX = Random.Range(-1.6f, -0.3f);
         }
         else {
-            offsetX = Random.Range(0, 2f);
+            offsetX = Random.Range(0.3f, 1.6f);
         }
 
 
@@ -128,6 +132,15 @@ public class SpawnManager : MonoBehaviour
 
     }
 
+    public void ChangeRowValue(int value)
+    {   
+        if(value == 0)
+        {
+            _clearInRow = 0;
+            return;
+        }
+        _clearInRow += value;
+    }
 
 
     

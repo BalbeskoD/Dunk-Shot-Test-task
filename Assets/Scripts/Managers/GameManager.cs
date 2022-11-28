@@ -41,7 +41,7 @@ namespace Managers
                         OnGame();
                         break;
 
-                    case GameStates.Lost:
+                    case GameStates.Lose:
                         OnGameEnd();
                         break;
                 }
@@ -72,14 +72,14 @@ namespace Managers
         private void SubscribeSignals()
         {
             _signalBus.Subscribe<GameStartSignal>(OnGameStart);
-            _signalBus.Subscribe<PlayerFailSignal>(OnFail);
+            _signalBus.Subscribe<FinishSignal>(OnFail);
             _signalBus.Subscribe<GameRestartSignal>(OnGameRestart);
         }
 
         private void UnsubscribeSignals()
         {
             _signalBus.Unsubscribe<GameStartSignal>(OnGameStart);
-            _signalBus.Unsubscribe<PlayerFailSignal>(OnFail);
+            _signalBus.Unsubscribe<FinishSignal>(OnFail);
             _signalBus.Unsubscribe<GameRestartSignal>(OnGameRestart);
         }
 
@@ -94,7 +94,7 @@ namespace Managers
 
         private void OnFail()
         {
-            ChangeGameState(GameStates.Lost);
+            ChangeGameState(GameStates.Lose);
         }
 
         private void ChangeGameState(GameStates gameStates)

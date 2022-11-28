@@ -1,18 +1,39 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
+using Zenject;
+using Zenject.Signals;
 
-public class IngamePanel : MonoBehaviour
+
+namespace UI
 {
-    // Start is called before the first frame update
-    void Start()
+    public class IngamePanel : MonoBehaviour
     {
-        
-    }
+        private SignalBus _signalBus;
+        private PointCounter _pointCounter;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        [Inject]
+        public void Construct(SignalBus signalBus)
+        {
+            _signalBus = signalBus;
+        }
+
+        private void Awake()
+        {
+            _signalBus.Subscribe<FinishSignal>(OnFinish);
+        }
+
+        private void OnDestroy()
+        {
+            _signalBus.Unsubscribe<FinishSignal>(OnFinish);
+        }
+
+        private void OnFinish()
+        {
+           
+        }
+
+        private void OnEnable()
+        {
+        }
     }
 }

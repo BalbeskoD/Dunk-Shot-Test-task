@@ -9,9 +9,8 @@ public class Basket : MonoBehaviour
     [SerializeField] private GameObject basketDown;
     [SerializeField] private GameObject ballPoint;
     private SignalBus _signalBus;
-    private bool isClear;
+    private bool isClear = true;
     private SpawnManager _spawnManager;
-
     public GameObject BallPoint => ballPoint;
     public GameObject BasketDown => basketDown;
 
@@ -22,39 +21,22 @@ public class Basket : MonoBehaviour
         _spawnManager = spawnManager;
     }
 
-    private void Awake()
-    {
-        _signalBus.Subscribe<GoalSignal>(OnGoal);
-        _signalBus.Subscribe<ClearGoalSignal>(OnClearGoal);
-    }
-
-    private void OnDestroy()
-    {
-        _signalBus.Unsubscribe<GoalSignal>(OnGoal);
-        _signalBus.Unsubscribe<ClearGoalSignal>(OnClearGoal);
-    }
-
-    private void OnGoal()
-    {
-
-    }
-
-    private void OnClearGoal()
-    {
-
-    }
+  
 
     public void SetBallPointPosY(float yPos)
     {
         ballPoint.transform.localPosition = new Vector3(ballPoint.transform.localPosition.x, yPos, ballPoint.transform.position.z);
     }
-    private void OnCollisionEnter(Collision collision)
+    public void DisactivateClearBasket()
     {
-        if (collision.gameObject.GetComponent<Ball>())
-        {
             isClear = false;
-        }
     }
+
+    public void ActivateClearBasket()
+    {
+        isClear = true;
+    }
+   
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -63,24 +45,35 @@ public class Basket : MonoBehaviour
         {
             if (ballColl && isClear)
             {
-                _signalBus.Fire<ClearGoalSignal>();
-                ballColl.ToggleAttachBall(true);
+                _spawnManager.ChangeRowValue(1);
+                _signalBus.Fire(new ClearGoalSignal() { clearInRow = _spawnManager.ClearInRow});
+                OnGoalAction();
             }
             else if (ballColl && !isClear)
             {
+                _spawnManager.ChangeRowValue(0);
                 _signalBus.Fire<GoalSignal>();
-                ballColl.ToggleAttachBall(true);
+                OnGoalAction();
+                
             }
         }
         else if(_spawnManager.BasketPull[_spawnManager.ActiveBasket].gameObject == gameObject)
         {
             if (ballColl)
             {
+                _spawnManager.ChangeRowValue(0);
                 _signalBus.Fire<BallReturnSignal>();
-                ballColl.ToggleAttachBall(true);
+                OnGoalAction();
             }
             
         }
-        
+        void OnGoalAction()
+        {
+
+            ballColl.ToggleAttachBall(true);
+            basketDown.GetComponent<PolygonCollider2D>().enabled = true;
+        }
     }
+
+   
 }

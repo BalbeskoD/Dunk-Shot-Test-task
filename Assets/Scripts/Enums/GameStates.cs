@@ -5,6 +5,7 @@ namespace Enums
         None,
         Menu,
         Game,
-        Lost
+        Settings,
+        Lose
     }
 }

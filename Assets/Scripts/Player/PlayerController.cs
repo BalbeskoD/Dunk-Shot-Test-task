@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
     public Vector2 StartMousePos => startMousePos;
     public float TotalScale =>totalScale;
     public Vector2 TotalForce => totalForce;
+    public bool IsControlable => isControlable;
 
     [Inject]
     public void Constructor(Ball ball, SpawnManager spawnManager, SignalBus signalBus)
@@ -35,12 +36,14 @@ public class PlayerController : MonoBehaviour
         //basketCollider = _spawnManager.BasketPull[_spawnManager.ActiveBasket].GetComponent<PolygonCollider2D>();
         screenHeight = Screen.height/3;
         _signalBus.Subscribe<GoalSignal>(ActiveControl);
+        _signalBus.Subscribe<ClearGoalSignal>(ActiveControl);
         _signalBus.Subscribe<BallReturnSignal>(ActiveControl);
     }
 
     private void OnDestroy()
     {
         _signalBus.Unsubscribe<GoalSignal>(ActiveControl);
+        _signalBus.Unsubscribe<ClearGoalSignal>(ActiveControl);
         _signalBus.Unsubscribe<BallReturnSignal>(ActiveControl);
     }
 
@@ -52,7 +55,7 @@ public class PlayerController : MonoBehaviour
             {
                 UpdateMousePosition();
                 startMousePos = mousePos;
-                _ball.BallRb.isKinematic = true;
+                //_ball.BallRb.isKinematic = true;
             }
             else if (Input.GetMouseButton(0))
             {
@@ -101,7 +104,7 @@ public class PlayerController : MonoBehaviour
             if (totalScale >= 1.8)
             {
                 _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.transform.localScale = new Vector3(1, 1.8f, 1);
-                _spawnManager.BasketPull[_spawnManager.ActiveBasket].SetBallPointPosY(-0.45f);
+                _spawnManager.BasketPull[_spawnManager.ActiveBasket].SetBallPointPosY(-0.47f);
             }
             else
             {
@@ -114,12 +117,12 @@ public class PlayerController : MonoBehaviour
     }
     private void OnMouseUpAction()
     {
-        
-        //basketCollider.enabled = false;
-        
+
+        _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.GetComponent<PolygonCollider2D>().enabled = false;
+
 
         Sequence mySequence = DOTween.Sequence();
-        mySequence//here we also need to change basket
+        mySequence
             .Append(_spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.transform.DOScale(Vector3.one, 0.05f));
 
         _spawnManager.BasketPull[_spawnManager.ActiveBasket].SetBallPointPosY(-0.2f);
@@ -136,7 +139,7 @@ public class PlayerController : MonoBehaviour
             _ball.BallRb.isKinematic = false;
             _ball.ToggleAttachBall(false);
 
-            totalForce = height * 1.8f / 30;
+            totalForce = height * 1.8f * Time.deltaTime / 4.5f;
             _ball.BallRb.AddForce(totalForce, ForceMode2D.Impulse);
             Debug.Log(height);
         }
@@ -145,11 +148,15 @@ public class PlayerController : MonoBehaviour
             _ball.BallRb.isKinematic = false;
             _ball.ToggleAttachBall(false);
 
-            totalForce = height * totalScale / 30;
+            totalForce = height * totalScale * Time.deltaTime / 4.5f;
             _ball.BallRb.AddForce(totalForce, ForceMode2D.Impulse);
+            //_ball.BallRb.AddForceAtPosition(totalForce, _ball.transform.position - new Vector3(0,0.25f,0));
             Debug.Log(height);
         }
         isControlable = false;
+        _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.GetComponent<PolygonCollider2D>().enabled = false;
+        _spawnManager.BasketPull[_spawnManager.ActiveBasket].ActivateClearBasket();
+
     }
 
     private void ActiveControl()
