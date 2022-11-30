@@ -14,12 +14,12 @@ public class PlayerController : MonoBehaviour
     private PolygonCollider2D basketCollider;
     private float maxLength = 500;
     private Vector2 totalForce;
-    private bool isControlable = true;
+    private bool isControlable;
     private SignalBus _signalBus;
 
-    public Vector2 MousePos =>mousePos;
+    public Vector2 MousePos => mousePos;
     public Vector2 StartMousePos => startMousePos;
-    public float TotalScale =>totalScale;
+    public float TotalScale => totalScale;
     public Vector2 TotalForce => totalForce;
     public bool IsControlable => isControlable;
 
@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         //basketCollider = _spawnManager.BasketPull[_spawnManager.ActiveBasket].GetComponent<PolygonCollider2D>();
-        screenHeight = Screen.height/3;
+        screenHeight = Screen.height / 3;
         _signalBus.Subscribe<GoalSignal>(ActiveControl);
         _signalBus.Subscribe<ClearGoalSignal>(ActiveControl);
         _signalBus.Subscribe<BallReturnSignal>(ActiveControl);
@@ -49,32 +49,40 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (isControlable)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                UpdateMousePosition();
-                startMousePos = mousePos;
-                //_ball.BallRb.isKinematic = true;
-            }
-            else if (Input.GetMouseButton(0))
-            {
-                OnMouseAction();
-            }
-
-            else if (Input.GetMouseButtonUp(0))
-            {
-                OnMouseUpAction();
-            }
+        
             if (_ball.IsAttached)
             {
                 _ball.BallRb.transform.position = _spawnManager.BasketPull[_spawnManager.ActiveBasket].BallPoint.transform.position;
                 _ball.BallRb.rotation = 0;
             }
-        }
         
 
     }
+    
+
+    
+
+    private void FixedUpdate()
+{
+    if (isControlable)
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            UpdateMousePosition();
+            startMousePos = mousePos;
+            //_ball.BallRb.isKinematic = true;
+        }
+        else if (Input.GetMouseButton(0))
+        {
+            OnMouseAction();
+        }
+
+        else if (Input.GetMouseButtonUp(0))
+        {
+            OnMouseUpAction();
+        }
+    }
+}
 
 
     private void UpdateMousePosition()
@@ -139,7 +147,7 @@ public class PlayerController : MonoBehaviour
             _ball.BallRb.isKinematic = false;
             _ball.ToggleAttachBall(false);
 
-            totalForce = height * 1.8f * Time.deltaTime / 4.5f;
+            totalForce = height * 1.8f * Time.deltaTime / 5.5f;
             _ball.BallRb.AddForce(totalForce, ForceMode2D.Impulse);
             Debug.Log(height);
         }
@@ -148,17 +156,22 @@ public class PlayerController : MonoBehaviour
             _ball.BallRb.isKinematic = false;
             _ball.ToggleAttachBall(false);
 
-            totalForce = height * totalScale * Time.deltaTime / 4.5f;
+            totalForce = height * totalScale * Time.deltaTime / 5.5f;
             _ball.BallRb.AddForce(totalForce, ForceMode2D.Impulse);
             //_ball.BallRb.AddForceAtPosition(totalForce, _ball.transform.position - new Vector3(0,0.25f,0));
             Debug.Log(height);
         }
-        isControlable = false;
+
+        DisActiveControl();
         _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.GetComponent<PolygonCollider2D>().enabled = false;
         _spawnManager.BasketPull[_spawnManager.ActiveBasket].ActivateClearBasket();
 
     }
 
+    public void DisActiveControl()
+    {
+        isControlable = false;
+    }
     private void ActiveControl()
     {
         isControlable = true;

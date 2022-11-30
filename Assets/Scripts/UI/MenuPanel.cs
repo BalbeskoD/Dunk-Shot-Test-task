@@ -1,18 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using Zenject;
+using Zenject.Signals;
 
-public class MenuPanel : MonoBehaviour
+public class MenuPanel : MonoBehaviour, IPointerDownHandler
 {
-    // Start is called before the first frame update
-    void Start()
+    private SignalBus _signalBus;
+
+
+    [Inject]public void Construct(SignalBus signalBus)
     {
-        
+        _signalBus = signalBus;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnPointerDown(PointerEventData pointerEventData)
     {
-        
+        //Output the name of the GameObject that is being clicked
+        _signalBus.Fire<GameStartSignal>();
     }
 }

@@ -15,18 +15,30 @@ public class Borders : MonoBehaviour
     private SignalBus _signalBus;
     private CameraController _cameraController;
 
+
     private float width;
     private float height;
+    private bool isGameActive;
 
-    public void Construct(SpawnManager spawnManager, PlayerController playerController, PointCounter pointCounter, SignalBus signalBus, CameraController cameraController)
+    [Inject]
+    public void Construct(SpawnManager spawnManager, PlayerController playerController, SignalBus signalBus, CameraController cameraController)
     {
         _spawnManager = spawnManager;
         _playerController = playerController;
-        _pointCounter = pointCounter;
         _signalBus = signalBus;
         _cameraController = cameraController;
     }
 
+    private void Awake()
+    {
+        _signalBus.Subscribe<GameStartSignal>(OnStart);
+        _signalBus.Subscribe<GameRestartSignal>(OnRestart);
+    }
+    private void OnDestroy()
+    {
+        _signalBus.Unsubscribe<GameStartSignal>(OnStart);
+        _signalBus.Unsubscribe<GameRestartSignal>(OnRestart);
+    }
     private void FixedUpdate()
     {
         width = Camera.main.orthographicSize * Screen.width / Screen.height;
@@ -52,7 +64,7 @@ public class Borders : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         var ball = collision.gameObject.GetComponent<Ball>();
-        if (ball && _pointCounter.PointCount > 0) 
+        if (ball && isGameActive) 
         {
             _signalBus.Fire<FinishSignal>();
         }
@@ -60,6 +72,15 @@ public class Borders : MonoBehaviour
         {
             _spawnManager.SpawnBall();
         }
+    }
+
+    private void OnStart()
+    {
+        isGameActive = true;
+    }
+    private void OnRestart()
+    {
+        isGameActive = false;
     }
 }
 

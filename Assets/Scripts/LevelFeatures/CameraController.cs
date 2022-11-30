@@ -12,6 +12,7 @@ public class CameraController : MonoBehaviour
 
     private SignalBus _signalBus;
 
+    [Inject]
     public void Construct(SignalBus signalBus)
     {
         _signalBus = signalBus;

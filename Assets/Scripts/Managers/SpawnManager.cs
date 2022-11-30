@@ -12,6 +12,8 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private Vector2 ballOffset;
     [SerializeField] private List<Basket> basketPull;
     [SerializeField] private float basketAngleOffset = 0.3f;
+    [SerializeField] private Vector2 basket1SpawnPlace;
+    [SerializeField] private Vector2 basket2SpawnPlace;
     private int activeBasket;
     private int notActiveBasket = 1;
     private int _clearInRow;
@@ -33,17 +35,23 @@ public class SpawnManager : MonoBehaviour
     {
         _signalBus.Subscribe<GoalSignal>(OnGoal);
         _signalBus.Subscribe<ClearGoalSignal>(OnClearGoal);
+        _signalBus.Subscribe<GameRestartSignal>(OnRestart);
+        _signalBus.Subscribe<GameStartSignal>(OnStart);
+        Time.timeScale = 0;
     }
 
     private void OnDestroy()
     {
         _signalBus.Unsubscribe<GoalSignal>(OnGoal);
         _signalBus.Unsubscribe<ClearGoalSignal>(OnClearGoal);
+        _signalBus.Unsubscribe<GameRestartSignal>(OnRestart);
+        _signalBus.Unsubscribe<GameStartSignal>(OnStart);
     }
 
     public void SpawnBall()
     {
-        ball.transform.position = new Vector2(basketPull[activeBasket].transform.position.x, basketPull[activeBasket].transform.position.y + ballOffset.y);
+        ball.GetComponent<Ball>().BallRb.transform.position = new Vector2(basketPull[activeBasket].transform.position.x, basketPull[activeBasket].transform.position.y + ballOffset.y);
+        ball.GetComponent<Ball>().BallRb.velocity = Vector2.zero;
         ball.gameObject.SetActive(true);
         basketPull[activeBasket].transform.rotation = new Quaternion(0, 0, 0, 0);
     }
@@ -55,6 +63,22 @@ public class SpawnManager : MonoBehaviour
         await UniTask.Delay(200);
         SpawnNewBasket();
     }
+    private void OnStart()
+    {
+        Time.timeScale = 1;
+    }
+    private void OnRestart()
+    {
+        activeBasket=0;
+        notActiveBasket=1;
+        basketPull[activeBasket].gameObject.transform.position = basket1SpawnPlace;
+        basketPull[activeBasket].gameObject.transform.rotation = new Quaternion(0, 0, 0, 0);
+        basketPull[notActiveBasket].gameObject.transform.position = basket2SpawnPlace;
+        basketPull[notActiveBasket].gameObject.transform.rotation = new Quaternion(0, 0, 0, 0);
+        SpawnBall();
+        Time.timeScale = 0;
+    }
+
 
     private async void OnClearGoal()
     {
@@ -131,6 +155,7 @@ public class SpawnManager : MonoBehaviour
 
 
     }
+
 
     public void ChangeRowValue(int value)
     {   

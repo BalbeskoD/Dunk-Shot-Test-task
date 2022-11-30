@@ -10,6 +10,9 @@ namespace UI
     {
         private SignalBus _signalBus;
         private PointCounter _pointCounter;
+        private PauseButton _pauseButton;
+        private UIController _uiController;
+
 
         [Inject]
         public void Construct(SignalBus signalBus)
@@ -20,6 +23,9 @@ namespace UI
         private void Awake()
         {
             _signalBus.Subscribe<FinishSignal>(OnFinish);
+            _uiController = GetComponentInParent<UIController>();
+            _pointCounter = GetComponentInChildren<PointCounter>();
+            _pauseButton = GetComponentInChildren<PauseButton>();
         }
 
         private void OnDestroy()
@@ -29,11 +35,21 @@ namespace UI
 
         private void OnFinish()
         {
-           
+            _pauseButton.gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
+            _pointCounter.gameObject.SetActive(true);
+            _pauseButton.gameObject.SetActive(true);
         }
+
+        private void OnDisable()
+        {
+            _pointCounter.gameObject.SetActive(false);
+            _pauseButton.gameObject.SetActive(false);
+
+        }
+       
     }
 }

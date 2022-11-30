@@ -5,13 +5,14 @@ using Zenject.Signals;
 
 namespace UI
 {
-    public class UiController : MonoBehaviour
+    public class UIController : MonoBehaviour
     {
         private MenuPanel _menuPanel;
         private IngamePanel _ingamePanel;
-        private LosePanel _losePanel;
+        private FinishPanel _finishPanel;
         private SettingsPanel _settingsPanel;
         private SignalBus _signalBus;
+        private PausePanel _pausePanel;
 
         [Inject]
         public void Construct(SignalBus signalBus)
@@ -23,8 +24,9 @@ namespace UI
         {
             _menuPanel = GetComponentInChildren<MenuPanel>(true);
             _ingamePanel = GetComponentInChildren<IngamePanel>(true);
-            _losePanel = GetComponentInChildren<LosePanel>(true);
+            _finishPanel = GetComponentInChildren<FinishPanel>(true);
             _settingsPanel = GetComponentInChildren<SettingsPanel>(true);
+            _pausePanel = GetComponentInChildren<PausePanel>(true);
             SubscribeSignals();
         }
 
@@ -45,10 +47,30 @@ namespace UI
 
         private void OnGameStateChange(GameStateChangeSignal signal)
         {
-            _menuPanel.gameObject.SetActive(signal.GameStates == GameStates.Menu);
-            _ingamePanel.gameObject.SetActive(signal.GameStates == GameStates.Game);
-            _losePanel.gameObject.SetActive(signal.GameStates == GameStates.Lose);
-            _settingsPanel.gameObject.SetActive(signal.GameStates == GameStates.Settings);
+            if(signal.GameStates == GameStates.Menu)
+            {
+                _menuPanel.gameObject.SetActive(true);
+                _ingamePanel.gameObject.SetActive(false);
+                _pausePanel.gameObject.SetActive(false);
+                _finishPanel.gameObject.SetActive(false);
+
+            } 
+            else if(signal.GameStates == GameStates.Game)
+            {
+                _menuPanel.gameObject.SetActive(false);
+                _ingamePanel.gameObject.SetActive(true);
+                _pausePanel.gameObject.SetActive(false);
+            } 
+            else if (signal.GameStates == GameStates.Lose)
+            {
+                _menuPanel.gameObject.SetActive(false);
+                _finishPanel.gameObject.SetActive(true);
+            } 
+            else if (signal.GameStates == GameStates.Pause)
+            {
+                _pausePanel.gameObject.SetActive(true);
+            }
+            
         }
     }
 }

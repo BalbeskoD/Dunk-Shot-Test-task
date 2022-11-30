@@ -67,6 +67,8 @@ public class Basket : MonoBehaviour
             }
             
         }
+        
+
         void OnGoalAction()
         {
 
@@ -74,6 +76,14 @@ public class Basket : MonoBehaviour
             basketDown.GetComponent<PolygonCollider2D>().enabled = true;
         }
     }
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        var ballColl = collision.gameObject.GetComponent<PlayerController>();
+        if (ballColl)
+        {
+           // ballColl.DisActiveControl();
+        }
+    }
 
-   
+
 }

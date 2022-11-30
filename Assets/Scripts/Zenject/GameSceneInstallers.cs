@@ -1,6 +1,7 @@
 using UnityEngine;
 using Zenject;
 using Zenject.Signals;
+using Managers;
 
 public class GameSceneInstallers : MonoInstaller<GameSceneInstallers>
 {
@@ -12,6 +13,7 @@ public class GameSceneInstallers : MonoInstaller<GameSceneInstallers>
     public override void InstallBindings()
     {
         SignalBusInstaller.Install(Container);
+        Container.BindInterfacesAndSelfTo<GameManager>().AsSingle().NonLazy();
         Container.BindInstances(playerController, cameraController, ball, spawnManager);
         BinsSignals();
     }
@@ -26,5 +28,7 @@ public class GameSceneInstallers : MonoInstaller<GameSceneInstallers>
         Container.DeclareSignal<GameStateChangeSignal>();
         Container.DeclareSignal<GameRestartSignal>();
         Container.DeclareSignal<BallReturnSignal>();
+        Container.DeclareSignal<PauseSignal>();
+        Container.DeclareSignal<BestResultSignal>();
     }
 }

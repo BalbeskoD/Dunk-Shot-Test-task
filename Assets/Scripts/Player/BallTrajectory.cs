@@ -31,30 +31,35 @@ public class BallTrajectory : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButton(0))
+        if (_playerController.IsControlable)
         {
-            if (_playerController.TotalScale > 1.4f)
+            if (Input.GetMouseButton(0))
             {
-                lineRenderer.positionCount = SimulateArc().Count;
-
-                for (int a = 0; a < lineRenderer.positionCount; a++)
+                if (_playerController.TotalScale > 1.4f)
                 {
-                    lineRenderer.SetPosition(a, SimulateArc()[a]);
+                    lineRenderer.positionCount = SimulateArc().Count;
+
+                    for (int a = 0; a < lineRenderer.positionCount; a++)
+                    {
+                        lineRenderer.SetPosition(a, SimulateArc()[a]);
+                    }
+                }
+                else if (_playerController.TotalScale >= 1.8f)
+                {
+
+                }
+                else
+                {
+                    lineRenderer.positionCount = 0;
                 }
             }
-            else if(_playerController.TotalScale >= 1.8f)
-            {
-
-            }
-            else
-            {
-                lineRenderer.positionCount = 0;
-            }
+            
         }
         if (Input.GetMouseButtonUp(0))
         {
             lineRenderer.positionCount = 0;
         }
+
 
 
     }

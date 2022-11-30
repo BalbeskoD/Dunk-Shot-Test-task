@@ -44,6 +44,11 @@ namespace Managers
                     case GameStates.Lose:
                         OnGameEnd();
                         break;
+
+                    case GameStates.Pause:
+                        break;
+
+                   
                 }
             }
         }
@@ -74,6 +79,7 @@ namespace Managers
             _signalBus.Subscribe<GameStartSignal>(OnGameStart);
             _signalBus.Subscribe<FinishSignal>(OnFail);
             _signalBus.Subscribe<GameRestartSignal>(OnGameRestart);
+            _signalBus.Subscribe<PauseSignal>(OnGamePause);
         }
 
         private void UnsubscribeSignals()
@@ -81,6 +87,7 @@ namespace Managers
             _signalBus.Unsubscribe<GameStartSignal>(OnGameStart);
             _signalBus.Unsubscribe<FinishSignal>(OnFail);
             _signalBus.Unsubscribe<GameRestartSignal>(OnGameRestart);
+            _signalBus.Unsubscribe<PauseSignal>(OnGamePause); 
         }
 
         private void OnGameRestart()
@@ -91,6 +98,10 @@ namespace Managers
             DOTween.Clear();
         }
 
+        private void OnGamePause()
+        {
+            ChangeGameState(GameStates.Pause);
+        }
 
         private void OnFail()
         {
@@ -124,4 +135,7 @@ namespace Managers
                 return;
         }
     }
+   
+
+
 }
