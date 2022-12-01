@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class SettingsPanel : MonoBehaviour
 {
-    // Start is called before the first frame update
-   public void ClosePanel()
+    public void CloseSettingsPanel()
     {
         gameObject.SetActive(false);
     }

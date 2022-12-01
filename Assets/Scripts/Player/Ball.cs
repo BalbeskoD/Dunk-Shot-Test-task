@@ -25,6 +25,7 @@ public class Ball : MonoBehaviour
     private void Awake()
     {
         ballRb = GetComponent<Rigidbody2D>();
+        ballRb.isKinematic = true;
         ballCollider = GetComponent<CircleCollider2D>();
         audioController = GetComponent<AudioController>();
     }

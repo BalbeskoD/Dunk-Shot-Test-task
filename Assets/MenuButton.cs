@@ -1,18 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using Zenject;
+using Zenject.Signals;
 
 public class MenuButton : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private Button button;
+    private SignalBus _signalBus;
+
+    [Inject]
+    public void Construct(SignalBus signalBus)
     {
-        
+        _signalBus = signalBus;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Awake()
     {
-        
+        button = GetComponent<Button>();
+        button.onClick.AddListener(OpenMenu);
+    }
+
+    private void OpenMenu()
+    {
+        _signalBus.Fire<GameRestartSignal>();
     }
 }

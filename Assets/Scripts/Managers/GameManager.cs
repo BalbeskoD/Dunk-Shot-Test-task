@@ -48,7 +48,7 @@ namespace Managers
                     case GameStates.Pause:
                         break;
 
-                   
+
                 }
             }
         }
@@ -87,7 +87,7 @@ namespace Managers
             _signalBus.Unsubscribe<GameStartSignal>(OnGameStart);
             _signalBus.Unsubscribe<FinishSignal>(OnFail);
             _signalBus.Unsubscribe<GameRestartSignal>(OnGameRestart);
-            _signalBus.Unsubscribe<PauseSignal>(OnGamePause); 
+            _signalBus.Unsubscribe<PauseSignal>(OnGamePause);
         }
 
         private void OnGameRestart()

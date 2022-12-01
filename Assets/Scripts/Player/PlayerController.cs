@@ -38,6 +38,8 @@ public class PlayerController : MonoBehaviour
         _signalBus.Subscribe<GoalSignal>(ActiveControl);
         _signalBus.Subscribe<ClearGoalSignal>(ActiveControl);
         _signalBus.Subscribe<BallReturnSignal>(ActiveControl);
+        _signalBus.Subscribe<GameStartSignal>(OnStart);
+        _signalBus.Subscribe<GameRestartSignal>(OnRestart);
     }
 
     private void OnDestroy()
@@ -45,6 +47,8 @@ public class PlayerController : MonoBehaviour
         _signalBus.Unsubscribe<GoalSignal>(ActiveControl);
         _signalBus.Unsubscribe<ClearGoalSignal>(ActiveControl);
         _signalBus.Unsubscribe<BallReturnSignal>(ActiveControl);
+        _signalBus.Unsubscribe<GameStartSignal>(OnStart);
+        _signalBus.Unsubscribe<GameRestartSignal>(OnRestart);
     }
 
     private void Update()
@@ -176,5 +180,14 @@ public class PlayerController : MonoBehaviour
     private void ActiveControl()
     {
         isControlable = true;
+    }
+
+    private void OnStart()
+    {
+        _ball.BallRb.isKinematic = false;
+    }
+    private void OnRestart()
+    {
+        _ball.BallRb.isKinematic = true;
     }
 }

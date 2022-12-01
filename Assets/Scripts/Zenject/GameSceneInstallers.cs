@@ -31,5 +31,6 @@ public class GameSceneInstallers : MonoInstaller<GameSceneInstallers>
         Container.DeclareSignal<PauseSignal>();
         Container.DeclareSignal<BestResultSignal>();
         Container.DeclareSignal<ShotSignal>();
+        Container.DeclareSignal<SettingsSignal>();
     }
 }

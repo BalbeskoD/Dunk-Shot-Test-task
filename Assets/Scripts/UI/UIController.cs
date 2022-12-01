@@ -38,11 +38,13 @@ namespace UI
         private void SubscribeSignals()
         {
             _signalBus.Subscribe<GameStateChangeSignal>(OnGameStateChange);
+            _signalBus.Subscribe<SettingsSignal>(OnSettings);
         }
 
         private void UnsubscribeSignals()
         {
             _signalBus.Unsubscribe<GameStateChangeSignal>(OnGameStateChange);
+            _signalBus.Unsubscribe<SettingsSignal>(OnSettings);
         }
 
         private void OnGameStateChange(GameStateChangeSignal signal)
@@ -70,7 +72,13 @@ namespace UI
             {
                 _pausePanel.gameObject.SetActive(true);
             }
-            
+
+
+        }
+
+        private void OnSettings()
+        {
+            _settingsPanel.gameObject.SetActive(true);
         }
     }
 }

@@ -37,7 +37,6 @@ public class SpawnManager : MonoBehaviour
         _signalBus.Subscribe<ClearGoalSignal>(OnClearGoal);
         _signalBus.Subscribe<GameRestartSignal>(OnRestart);
         _signalBus.Subscribe<GameStartSignal>(OnStart);
-        Time.timeScale = 0;
     }
 
     private void OnDestroy()
@@ -76,7 +75,6 @@ public class SpawnManager : MonoBehaviour
         basketPull[notActiveBasket].gameObject.transform.position = basket2SpawnPlace;
         basketPull[notActiveBasket].gameObject.transform.rotation = new Quaternion(0, 0, 0, 0);
         SpawnBall();
-        Time.timeScale = 0;
     }
 
 
