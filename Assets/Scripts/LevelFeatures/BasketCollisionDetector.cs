@@ -8,7 +8,6 @@ public class BasketCollisionDetector : MonoBehaviour
     private SignalBus _signalBus;
     private SpawnManager _spawnManager;
     private Basket _basket;
-    private static readonly string basketTopTag = "BasketTop";
     public GameObject BasketDown => basketDown;
 
     [Inject]

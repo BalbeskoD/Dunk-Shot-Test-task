@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Enums;
 using Zenject;
@@ -10,10 +8,8 @@ public class Borders : MonoBehaviour
     [SerializeField] private BordersLocations bordersLocations;
     
     private PlayerController _playerController;
-    private PointCounter _pointCounter;
     private SpawnManager _spawnManager;
     private SignalBus _signalBus;
-    private CameraController _cameraController;
 
 
     private float width;
@@ -21,12 +17,11 @@ public class Borders : MonoBehaviour
     private bool isGameActive;
 
     [Inject]
-    public void Construct(SpawnManager spawnManager, PlayerController playerController, SignalBus signalBus, CameraController cameraController)
+    public void Construct(SpawnManager spawnManager, PlayerController playerController, SignalBus signalBus)
     {
         _spawnManager = spawnManager;
         _playerController = playerController;
         _signalBus = signalBus;
-        _cameraController = cameraController;
     }
 
     private void Awake()

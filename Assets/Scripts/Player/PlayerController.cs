@@ -11,7 +11,6 @@ public class PlayerController : MonoBehaviour
     private Vector2 startMousePos;
     private float screenHeight;
     private float totalScale;
-    private PolygonCollider2D basketCollider;
     private float maxLength = 500;
     private Vector2 totalForce;
     private bool isControlable;

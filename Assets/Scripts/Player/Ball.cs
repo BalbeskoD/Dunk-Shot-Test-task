@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Ball : MonoBehaviour
@@ -7,9 +5,8 @@ public class Ball : MonoBehaviour
     
     private Rigidbody2D ballRb;
     private bool isAttached;
-    private CircleCollider2D ballCollider;
-    private SpawnManager _spawnManager;
     private AudioController audioController;
+    private AudioSource audioSource;
     private static readonly string basketTopTag = "BasketTop";
     private static readonly string sideBorderTag = "SideBorder";
 
@@ -17,17 +14,14 @@ public class Ball : MonoBehaviour
 
     public Rigidbody2D BallRb => ballRb;
 
-    public void Construct(SpawnManager spawnManager)
-    {
-        _spawnManager = spawnManager;
-    }
+
 
     private void Awake()
     {
         ballRb = GetComponent<Rigidbody2D>();
         ballRb.isKinematic = true;
-        ballCollider = GetComponent<CircleCollider2D>();
         audioController = GetComponent<AudioController>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     public void ToggleAttachBall(bool toggle)
@@ -46,5 +40,10 @@ public class Ball : MonoBehaviour
         {
             audioController.PlayKnokAudio();
         }
+    }
+
+    public void ToggleAudio(bool toggle)
+    {
+        audioSource.mute = !toggle;
     }
 }

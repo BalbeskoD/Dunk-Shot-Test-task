@@ -1,6 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
 using Zenject;
 using Zenject.Signals;
 using Cinemachine;

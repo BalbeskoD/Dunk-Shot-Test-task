@@ -35,7 +35,7 @@ public class SoundToggler : MonoBehaviour
         this.value = !this.value;
 
         _animator.SetBool(Value, value);
-        _ball.gameObject.GetComponent<AudioListener>().enabled = value;
+        _ball.ToggleAudio(value);
         
     }
 }
