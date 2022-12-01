@@ -9,6 +9,9 @@ public class Ball : MonoBehaviour
     private bool isAttached;
     private CircleCollider2D ballCollider;
     private SpawnManager _spawnManager;
+    private AudioController audioController;
+    private static readonly string basketTopTag = "BasketTop";
+    private static readonly string sideBorderTag = "SideBorder";
 
     public bool IsAttached => isAttached;
 
@@ -23,6 +26,7 @@ public class Ball : MonoBehaviour
     {
         ballRb = GetComponent<Rigidbody2D>();
         ballCollider = GetComponent<CircleCollider2D>();
+        audioController = GetComponent<AudioController>();
     }
 
     public void ToggleAttachBall(bool toggle)
@@ -32,10 +36,14 @@ public class Ball : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        var basket = collision.gameObject.GetComponent<Basket>();
-        if (basket)
+        if (collision.gameObject.CompareTag(basketTopTag))
         {
-            basket.DisactivateClearBasket();
+            collision.gameObject.GetComponentInParent<Basket>().DisactivateClearBasket();
+        }
+
+        if(collision.gameObject.CompareTag(basketTopTag) || collision.gameObject.CompareTag(sideBorderTag))
+        {
+            audioController.PlayKnokAudio();
         }
     }
 }

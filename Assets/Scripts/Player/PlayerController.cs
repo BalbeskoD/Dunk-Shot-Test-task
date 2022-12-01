@@ -126,6 +126,7 @@ public class PlayerController : MonoBehaviour
     private void OnMouseUpAction()
     {
 
+        _signalBus.Fire<ShotSignal>();
         _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.GetComponent<PolygonCollider2D>().enabled = false;
 
 
