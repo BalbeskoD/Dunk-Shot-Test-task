@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 startMousePos;
     private float screenHeight;
     private float totalScale;
-    private float maxLength = 500;
+    private float maxLength;
     private Vector2 totalForce;
     private bool isControlable;
     private SignalBus _signalBus;
@@ -33,7 +33,8 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         //basketCollider = _spawnManager.BasketPull[_spawnManager.ActiveBasket].GetComponent<PolygonCollider2D>();
-        screenHeight = Screen.height / 3;
+        screenHeight = Screen.height/2.5f;
+        maxLength = screenHeight;
         _signalBus.Subscribe<GoalSignal>(ActiveControl);
         _signalBus.Subscribe<ClearGoalSignal>(ActiveControl);
         _signalBus.Subscribe<BallReturnSignal>(ActiveControl);
@@ -111,7 +112,7 @@ public class PlayerController : MonoBehaviour
         {
 
             totalScale = (1 + (tempScreenVector / screenHeight));
-            Debug.Log(totalScale);
+            
             if (totalScale >= 1.8)
             {
                 _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.transform.localScale = new Vector3(1, 1.8f, 1);
@@ -140,30 +141,28 @@ public class PlayerController : MonoBehaviour
         _spawnManager.BasketPull[_spawnManager.ActiveBasket].SetBallPointPosY(-0.2f);
 
 
-        var height = Vector2.ClampMagnitude(new Vector2((startMousePos.x - mousePos.x), (startMousePos.y - mousePos.y)), maxLength);
+        var height = Vector2.ClampMagnitude(new Vector2((startMousePos.x - mousePos.x), (startMousePos.y - mousePos.y)), totalScale);
         //var startSpeed = Mathf.Sqrt(height * (-2f*9.8f));
-        if(totalScale <= 1.4)
-        {
-            return;
-        }
-        else if (totalScale >= 1.8)
+        
+    
+        if (totalScale >= 1.8)
         {
             _ball.BallRb.isKinematic = false;
             _ball.ToggleAttachBall(false);
-
-            totalForce = height * 1.8f * Time.deltaTime / 5.5f;
+            Vector2 launchPosition = _ball.gameObject.transform.position;
+            totalForce =   (height   *2 * 1.8f);
             _ball.BallRb.AddForce(totalForce, ForceMode2D.Impulse);
-            Debug.Log(height);
+            
         }
         else
         {
             _ball.BallRb.isKinematic = false;
             _ball.ToggleAttachBall(false);
-
-            totalForce = height * totalScale * Time.deltaTime / 5.5f;
+            Vector2 launchPosition = _ball.gameObject.transform.position;
+            totalForce =  (height *2 * totalScale);
             _ball.BallRb.AddForce(totalForce, ForceMode2D.Impulse);
             //_ball.BallRb.AddForceAtPosition(totalForce, _ball.transform.position - new Vector3(0,0.25f,0));
-            Debug.Log(height);
+           
         }
 
         DisActiveControl();

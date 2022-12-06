@@ -8,7 +8,8 @@ public class Ball : MonoBehaviour
     private AudioController audioController;
     private AudioSource audioSource;
     private static readonly string basketTopTag = "BasketTop";
-    private static readonly string sideBorderTag = "SideBorder";
+    private static readonly string leftBorderTag = "LeftBorder";
+    private static readonly string rightBorderTag = "RightBorder";
 
     public bool IsAttached => isAttached;
 
@@ -36,7 +37,7 @@ public class Ball : MonoBehaviour
             collision.gameObject.GetComponentInParent<Basket>().DisactivateClearBasket();
         }
 
-        if(collision.gameObject.CompareTag(basketTopTag) || collision.gameObject.CompareTag(sideBorderTag))
+        if(collision.gameObject.CompareTag(basketTopTag) || collision.gameObject.CompareTag(leftBorderTag)|| collision.gameObject.CompareTag(rightBorderTag))
         {
             audioController.PlayKnokAudio();
         }

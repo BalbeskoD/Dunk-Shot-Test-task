@@ -28,6 +28,8 @@ public class Borders : MonoBehaviour
     {
         _signalBus.Subscribe<GameStartSignal>(OnStart);
         _signalBus.Subscribe<GameRestartSignal>(OnRestart);
+        width = Camera.main.orthographicSize * Screen.width / Screen.height;
+        height = Camera.main.orthographicSize * Screen.height / Screen.width / 2;
     }
     private void OnDestroy()
     {
@@ -36,15 +38,14 @@ public class Borders : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        width = Camera.main.orthographicSize * Screen.width / Screen.height;
-        height = Camera.main.orthographicSize * Screen.height / Screen.width / 2;
+        
         if (bordersLocations == BordersLocations.Left)
         {
-            transform.position = Camera.main.transform.position - new Vector3(width, 0);
+            transform.position = Camera.main.transform.position - new Vector3(width, 0,10.0f);
         }
         else if (bordersLocations == BordersLocations.Right)
         {
-            transform.position = Camera.main.transform.position + new Vector3(width, 0);
+            transform.position = Camera.main.transform.position + new Vector3(width, 0, 10.0f);
         }
         else if (bordersLocations == BordersLocations.Down)
         {
