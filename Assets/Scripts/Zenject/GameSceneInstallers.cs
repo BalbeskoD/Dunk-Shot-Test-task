@@ -32,5 +32,6 @@ public class GameSceneInstallers : MonoInstaller<GameSceneInstallers>
         Container.DeclareSignal<BestResultSignal>();
         Container.DeclareSignal<ShotSignal>();
         Container.DeclareSignal<SettingsSignal>();
+        Container.DeclareSignal<StarChangeSignal>();
     }
 }

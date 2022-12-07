@@ -9,10 +9,12 @@ public class SpawnManager : MonoBehaviour
 {
     [SerializeField] private GameObject ball;
     [SerializeField] private Vector2 ballOffset;
+    [SerializeField] private GameObject star;
     [SerializeField] private List<Basket> basketPull;
     [SerializeField] private float basketAngleOffset = 0.3f;
     [SerializeField] private Vector2 basket1SpawnPlace;
     [SerializeField] private Vector2 basket2SpawnPlace;
+    [SerializeField] private Vector3 starOffset = new Vector3(0, 0.5f, 0);
     private int activeBasket;
     private int notActiveBasket = 1;
     private int _clearInRow;
@@ -54,12 +56,22 @@ public class SpawnManager : MonoBehaviour
         basketPull[activeBasket].transform.rotation = new Quaternion(0, 0, 0, 0);
     }
 
+    private void SpawnStar()
+    {
+        int rand = Random.Range(0, 5);
+        if (rand == 0)
+        {
+            Instantiate(star, basketPull[notActiveBasket].transform.position + starOffset, new Quaternion(0, 0, 0, 0));
+        }
+    }
+
     private async void OnGoal()
     {
         SwitchBasket();
         SetUpActiveBasket();
         await UniTask.Delay(200);
         SpawnNewBasket();
+        SpawnStar();
     }
     private void OnStart()
     {
@@ -83,6 +95,7 @@ public class SpawnManager : MonoBehaviour
         SetUpActiveBasket();
         await UniTask.Delay(200);
         SpawnNewBasket();
+        SpawnStar();
 
     }
 

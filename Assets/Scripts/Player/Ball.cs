@@ -1,4 +1,7 @@
 using UnityEngine;
+using Zenject;
+using Zenject.Signals;
+
 
 public class Ball : MonoBehaviour
 {
@@ -7,6 +10,8 @@ public class Ball : MonoBehaviour
     private bool isAttached;
     private AudioController audioController;
     private AudioSource audioSource;
+    private SignalBus _signalBus;
+    
     private static readonly string basketTopTag = "BasketTop";
     private static readonly string leftBorderTag = "LeftBorder";
     private static readonly string rightBorderTag = "RightBorder";
@@ -15,7 +20,12 @@ public class Ball : MonoBehaviour
 
     public Rigidbody2D BallRb => ballRb;
 
-
+    [Inject]
+    public void Construct(SignalBus signalBus)
+    {
+        _signalBus = signalBus;
+        
+    }
 
     private void Awake()
     {
@@ -41,10 +51,17 @@ public class Ball : MonoBehaviour
         {
             audioController.PlayKnokAudio();
         }
+
+        if (collision.gameObject.GetComponent<Star>())
+        {
+            Destroy(collision.gameObject);
+            _signalBus.Fire<StarChangeSignal>();
+        }
     }
 
     public void ToggleAudio(bool toggle)
     {
         audioSource.mute = !toggle;
     }
+    
 }

@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
 using Zenject;
@@ -127,11 +128,10 @@ public class PlayerController : MonoBehaviour
 
         
     }
-    private void OnMouseUpAction()
+    private async void OnMouseUpAction()
     {
 
         _signalBus.Fire<ShotSignal>();
-        _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.GetComponent<PolygonCollider2D>().enabled = false;
 
 
         Sequence mySequence = DOTween.Sequence();
@@ -168,6 +168,10 @@ public class PlayerController : MonoBehaviour
         DisActiveControl();
         _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.GetComponent<PolygonCollider2D>().enabled = false;
         _spawnManager.BasketPull[_spawnManager.ActiveBasket].ActivateClearBasket();
+
+        await UniTask.Delay(100);
+        
+        _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.GetComponent<PolygonCollider2D>().enabled = true;
 
     }
 
