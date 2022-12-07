@@ -5,14 +5,19 @@ using Zenject;
 using Zenject.Signals;
 using TMPro;
 using System.IO;
+using UnityEngine.UI;
 
 public class StarsCounter : MonoBehaviour
 {
+    [SerializeField] private Image starSprite; 
     private TextMeshProUGUI starsCounterText;
     private int starsCounter;
     private SignalBus _signalBus;
+    private Camera camera;
+    private Vector3 starUiPos;
 
     public int StarsCount => starsCounter;
+    public Vector3 StarUiPos => starUiPos;
 
     
 
@@ -27,6 +32,8 @@ public class StarsCounter : MonoBehaviour
         _signalBus.Subscribe<StarChangeSignal>(OnStarChange);
         LoadStarResult();
         UpdateBestResult();
+        starSprite = GetComponentInChildren<Image>();
+        camera = FindObjectOfType<Camera>().GetComponent<Camera>();
     }
 
     private void OnDestroy()
@@ -44,6 +51,7 @@ public class StarsCounter : MonoBehaviour
         starsCounter++;
         SaveStarResult();
         UpdateBestResult();
+        starUiPos = camera.ScreenToWorldPoint(starSprite.transform.position);
     }
     
 

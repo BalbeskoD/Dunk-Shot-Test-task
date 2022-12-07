@@ -12,7 +12,6 @@ public class PlayerController : MonoBehaviour
     private Vector2 startMousePos;
     private float screenHeight;
     private float totalScale;
-    private float maxLength;
     private Vector2 totalForce;
     private bool isControlable;
     private SignalBus _signalBus;
@@ -20,7 +19,6 @@ public class PlayerController : MonoBehaviour
     public Vector2 MousePos => mousePos;
     public Vector2 StartMousePos => startMousePos;
     public float TotalScale => totalScale;
-    public Vector2 TotalForce => totalForce;
     public bool IsControlable => isControlable;
 
     [Inject]
@@ -35,7 +33,6 @@ public class PlayerController : MonoBehaviour
     {
         //basketCollider = _spawnManager.BasketPull[_spawnManager.ActiveBasket].GetComponent<PolygonCollider2D>();
         screenHeight = Screen.height/2.5f;
-        maxLength = screenHeight;
         _signalBus.Subscribe<GoalSignal>(ActiveControl);
         _signalBus.Subscribe<ClearGoalSignal>(ActiveControl);
         _signalBus.Subscribe<BallReturnSignal>(ActiveControl);
@@ -134,22 +131,16 @@ public class PlayerController : MonoBehaviour
         _signalBus.Fire<ShotSignal>();
 
 
-        Sequence mySequence = DOTween.Sequence();
-        mySequence
-            .Append(_spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.transform.DOScale(Vector3.one, 0.05f));
-
-        _spawnManager.BasketPull[_spawnManager.ActiveBasket].SetBallPointPosY(-0.2f);
+       
 
 
         var height = Vector2.ClampMagnitude(new Vector2((startMousePos.x - mousePos.x), (startMousePos.y - mousePos.y)), totalScale);
-        //var startSpeed = Mathf.Sqrt(height * (-2f*9.8f));
         
     
         if (totalScale >= 1.8)
         {
             _ball.BallRb.isKinematic = false;
             _ball.ToggleAttachBall(false);
-            Vector2 launchPosition = _ball.gameObject.transform.position;
             totalForce =   (height   *2 * 1.8f);
             _ball.BallRb.AddForce(totalForce, ForceMode2D.Impulse);
             
@@ -158,13 +149,17 @@ public class PlayerController : MonoBehaviour
         {
             _ball.BallRb.isKinematic = false;
             _ball.ToggleAttachBall(false);
-            Vector2 launchPosition = _ball.gameObject.transform.position;
             totalForce =  (height *2 * totalScale);
             _ball.BallRb.AddForce(totalForce, ForceMode2D.Impulse);
-            //_ball.BallRb.AddForceAtPosition(totalForce, _ball.transform.position - new Vector3(0,0.25f,0));
            
         }
 
+        
+        Sequence mySequence = DOTween.Sequence();
+        mySequence
+            .Append(_spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.transform.DOScale(Vector3.one, 0.05f));
+
+        _spawnManager.BasketPull[_spawnManager.ActiveBasket].SetBallPointPosY(-0.2f);
         DisActiveControl();
         _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.GetComponent<PolygonCollider2D>().enabled = false;
         _spawnManager.BasketPull[_spawnManager.ActiveBasket].ActivateClearBasket();

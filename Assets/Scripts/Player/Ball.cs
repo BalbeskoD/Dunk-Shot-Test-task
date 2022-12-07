@@ -52,16 +52,17 @@ public class Ball : MonoBehaviour
             audioController.PlayKnokAudio();
         }
 
-        if (collision.gameObject.GetComponent<Star>())
-        {
-            Destroy(collision.gameObject);
-            _signalBus.Fire<StarChangeSignal>();
-        }
+        
     }
 
     public void ToggleAudio(bool toggle)
     {
         audioSource.mute = !toggle;
     }
-    
+
+    public void StarFire()
+    {
+
+        _signalBus.Fire<StarChangeSignal>();
+    }
 }

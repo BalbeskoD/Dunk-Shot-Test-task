@@ -25,6 +25,7 @@ public class SpawnManager : MonoBehaviour
     public int ActiveBasket => activeBasket;
 
     public int ClearInRow => _clearInRow;
+    public GameObject Star => star;
 
     [Inject]
     public void Construct(SignalBus signalBus)

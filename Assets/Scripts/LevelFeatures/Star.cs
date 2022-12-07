@@ -32,8 +32,15 @@ public class Star : MonoBehaviour
         
        
     }
-    
-    
 
-    
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.gameObject.GetComponent<Ball>())
+        {
+            col.gameObject.GetComponent<Ball>().StarFire();
+
+            Sequence sequence = DOTween.Sequence();
+            sequence.Append(transform.DOJump())
+        }
+    }
 }
