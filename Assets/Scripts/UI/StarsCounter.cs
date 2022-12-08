@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -41,6 +42,12 @@ public class StarsCounter : MonoBehaviour
         _signalBus.Unsubscribe<StarChangeSignal>(OnStarChange);
     }
 
+    private void FixedUpdate()
+    {
+        
+        starUiPos = camera.ScreenToWorldPoint(starSprite.transform.position);
+    }
+
     private void UpdateBestResult()
     {
         starsCounterText.text = starsCounter.ToString();
@@ -51,7 +58,6 @@ public class StarsCounter : MonoBehaviour
         starsCounter++;
         SaveStarResult();
         UpdateBestResult();
-        starUiPos = camera.ScreenToWorldPoint(starSprite.transform.position);
     }
     
 

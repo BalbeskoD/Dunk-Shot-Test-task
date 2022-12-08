@@ -7,6 +7,7 @@ namespace UI
 {
     public class UIController : MonoBehaviour
     {
+        
         private MenuPanel _menuPanel;
         private IngamePanel _ingamePanel;
         private FinishPanel _finishPanel;
@@ -22,6 +23,7 @@ namespace UI
 
         private void Awake()
         {
+            
             _menuPanel = GetComponentInChildren<MenuPanel>(true);
             _ingamePanel = GetComponentInChildren<IngamePanel>(true);
             _finishPanel = GetComponentInChildren<FinishPanel>(true);

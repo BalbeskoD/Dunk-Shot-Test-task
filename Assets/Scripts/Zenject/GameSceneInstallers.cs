@@ -10,13 +10,12 @@ public class GameSceneInstallers : MonoInstaller<GameSceneInstallers>
     [SerializeField] private CameraController cameraController;
     [SerializeField] private Ball ball;
     [SerializeField] private SpawnManager spawnManager;
-    [SerializeField] private UIController _uiController;
 
     public override void InstallBindings()
     {
         SignalBusInstaller.Install(Container);
         Container.BindInterfacesAndSelfTo<GameManager>().AsSingle().NonLazy();
-        Container.BindInstances(playerController, cameraController, ball, spawnManager, _uiController);
+        Container.BindInstances(playerController, cameraController, ball, spawnManager);
         BinsSignals();
     }
 
