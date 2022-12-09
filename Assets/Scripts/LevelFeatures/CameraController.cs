@@ -16,13 +16,12 @@ public class CameraController : MonoBehaviour
         _signalBus = signalBus;
     }
 
-
-
     private void Awake()
     {
         _signalBus.Subscribe<FinishSignal>(OnFinish);
         _signalBus.Subscribe<GameRestartSignal>(OnRestart);
     }
+    
     private void OnDestroy()
     {
         _signalBus.Unsubscribe<FinishSignal>(OnFinish);

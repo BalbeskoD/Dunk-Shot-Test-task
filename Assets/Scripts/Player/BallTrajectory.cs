@@ -10,7 +10,6 @@ public class BallTrajectory : MonoBehaviour
     [SerializeField] float simulationStep = 0.1f;
     [SerializeField] private float maxDist = 5.0f;
 
-
     private static readonly string leftBorderTag = "LeftBorder";
     private static readonly string rightBorderTag = "RightBorder";
     
@@ -24,55 +23,32 @@ public class BallTrajectory : MonoBehaviour
         _playerController = playerController;
     }
 
-
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.textureMode = LineTextureMode.RepeatPerSegment;
     }
-
-    // Update is called once per frame
-    void LateUpdate()
+    
+    private void LateUpdate()
     {
-        if (_playerController.IsControlable)
-        {
-            if (Input.GetMouseButton(0))
-            {
-                if (_playerController.TotalScale > 1.1f)
-                {
-                    lineRenderer.positionCount = SimulateArc().Count;
-
-                    for (int a = 0; a < lineRenderer.positionCount; a++)
-                    {
-                        lineRenderer.SetPosition(a, SimulateArc()[a]);
-                    }
-                }
-                else if (_playerController.TotalScale >= 1.8f)
-                {
-
-                }
-                else
-                {
-                    lineRenderer.positionCount = 0;
-                }
-            }
-
-        }
-
         if (Input.GetMouseButtonUp(0))
-        {
             lineRenderer.positionCount = 0;
+
+        if (!_playerController.IsControlable) return;
+        
+        if (Input.GetMouseButton(0))
+        {
+            lineRenderer.positionCount = _playerController.TotalScale > 1.1f ? 
+                lineRenderer.positionCount = SimulateArc().Count : lineRenderer.positionCount = 0;
+            
+            for (int a = 0; a < lineRenderer.positionCount; a++)
+                lineRenderer.SetPosition(a, SimulateArc()[a]);
         }
-
-
-
     }
 
     private List<Vector2> SimulateArc()
     {
-
-
-        int steps = (int)(simulateForDuration / simulationStep); //50 in this example
+        var steps = (int)(simulateForDuration / simulationStep);
         Vector2 directionVector;
         Vector2 calculatedPosition;
         if (_playerController.TotalScale >= 1.8)
@@ -80,8 +56,7 @@ public class BallTrajectory : MonoBehaviour
             directionVector =
                 Vector2.ClampMagnitude(
                     new Vector2(_playerController.StartMousePos.x - _playerController.MousePos.x,
-                        _playerController.StartMousePos.y - _playerController.MousePos.y), _playerController.TotalScale); //You plug you own direction here this is just an example
-
+                        _playerController.StartMousePos.y - _playerController.MousePos.y), _playerController.TotalScale); 
         }
         else
         {
@@ -89,14 +64,12 @@ public class BallTrajectory : MonoBehaviour
                 Vector2.ClampMagnitude(
                     new Vector2(_playerController.StartMousePos.x - _playerController.MousePos.x,
                         _playerController.StartMousePos.y - _playerController.MousePos.y) , _playerController.TotalScale );
-            ; //You plug you own direction here this is just an example
-
         }
 
         Vector2 launchPosition = _ball.gameObject.transform.position;
-        float launchSpeed = 5f;
+        var launchSpeed = 5f;
 
-        List<Vector2> lineRendererPoints = new List<Vector2>();
+        var lineRendererPoints = new List<Vector2>();
         for (int i = 0; i < steps; ++i)
         {
             calculatedPosition = launchPosition + (directionVector * (launchSpeed * i * simulationStep));

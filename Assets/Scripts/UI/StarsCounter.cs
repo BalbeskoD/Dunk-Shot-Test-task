@@ -6,21 +6,19 @@ using Zenject;
 using Zenject.Signals;
 using TMPro;
 using System.IO;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class StarsCounter : MonoBehaviour
 {
     [SerializeField] private Image starSprite; 
-    private TextMeshProUGUI starsCounterText;
-    private int starsCounter;
+    private TextMeshProUGUI _starsCounterText;
     private SignalBus _signalBus;
-    private Camera camera;
-    private Vector3 starUiPos;
+    private Camera _camera;
+    private int _starsCounter;
 
-    public int StarsCount => starsCounter;
-    public Vector3 StarUiPos => starUiPos;
+    public Vector3 StarUiPos { get; private set; }
 
-    
 
     [Inject]
     public void Construct(SignalBus signalBus)
@@ -29,12 +27,12 @@ public class StarsCounter : MonoBehaviour
     }
     private void Awake()
     {
-        starsCounterText = GetComponent<TextMeshProUGUI>();
+        _starsCounterText = GetComponent<TextMeshProUGUI>();
         _signalBus.Subscribe<StarChangeSignal>(OnStarChange);
         LoadStarResult();
         UpdateBestResult();
         starSprite = GetComponentInChildren<Image>();
-        camera = FindObjectOfType<Camera>().GetComponent<Camera>();
+        _camera = FindObjectOfType<Camera>().GetComponent<Camera>();
     }
 
     private void OnDestroy()
@@ -45,51 +43,45 @@ public class StarsCounter : MonoBehaviour
     private void FixedUpdate()
     {
         
-        starUiPos = camera.ScreenToWorldPoint(starSprite.transform.position);
+        StarUiPos = _camera.ScreenToWorldPoint(starSprite.transform.position);
     }
 
     private void UpdateBestResult()
     {
-        starsCounterText.text = starsCounter.ToString();
+        _starsCounterText.text = _starsCounter.ToString();
     }
 
     private void OnStarChange()
     {
-        starsCounter++;
+        _starsCounter++;
         SaveStarResult();
         UpdateBestResult();
     }
     
-
-   
-
-    
-
-    [System.Serializable]
+    [Serializable]
     class SaveData
     {
-        public int StarsPoints;
+        [FormerlySerializedAs("StarsPoints")] public int starsPoints;
     }
 
-    public void SaveStarResult()
+    private void SaveStarResult()
     {
-        SaveData data = new SaveData();
-        data.StarsPoints = starsCounter;
+        var data = new SaveData();
+        data.starsPoints = _starsCounter;
 
-        string json = JsonUtility.ToJson(data);
+        var json = JsonUtility.ToJson(data);
 
         File.WriteAllText(Application.persistentDataPath + "/savefile1.json", json);
     }
 
-    public void LoadStarResult()
+    private void LoadStarResult()
     {
-        string path = Application.persistentDataPath + "/savefile1.json";
-        if (File.Exists(path))
-        {
-            string json = File.ReadAllText(path);
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
-
-            starsCounter = data.StarsPoints;
-        }
+        var path = Application.persistentDataPath + "/savefile1.json";
+        
+        if (!File.Exists(path)) return;
+        
+        var json = File.ReadAllText(path);
+        var data = JsonUtility.FromJson<SaveData>(json);
+        _starsCounter = data.starsPoints;
     }
 }

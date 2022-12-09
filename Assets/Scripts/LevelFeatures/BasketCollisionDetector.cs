@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Zenject;
 using Zenject.Signals;
@@ -8,6 +9,9 @@ public class BasketCollisionDetector : MonoBehaviour
     private SignalBus _signalBus;
     private SpawnManager _spawnManager;
     private Basket _basket;
+    private const string GoalSignal = "GoalSignal";
+    private const string ClearGoalSignal = "ClearGoalSignal";
+    private const string BallReturnSignal = "BallReturnSignal";
     public GameObject BasketDown => basketDown;
 
     [Inject]
@@ -22,54 +26,47 @@ public class BasketCollisionDetector : MonoBehaviour
         _basket = GetComponentInParent<Basket>();
     }
 
-
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         var ballColl = collision.gameObject.GetComponent<Ball>();
+        
+        if (!ballColl) return;
+        
         if (_spawnManager.BasketPull[_spawnManager.ActiveBasket].gameObject != _basket.gameObject)
         {
-            if (ballColl && _basket.IsClear)
-            {
-                _spawnManager.ChangeRowValue(1);
-                _signalBus.Fire(new ClearGoalSignal() { clearInRow = _spawnManager.ClearInRow});
-                OnGoalAction();
-            }
-            else if (ballColl && !_basket.IsClear)
-            {
-                _spawnManager.ChangeRowValue(0);
-                _signalBus.Fire<GoalSignal>();
-                OnGoalAction();
-                
-            }
-        }
-        else if(_spawnManager.BasketPull[_spawnManager.ActiveBasket].gameObject == _basket.gameObject)
-        {
-            if (ballColl)
-            {
-                _spawnManager.ChangeRowValue(0);
-                _signalBus.Fire<BallReturnSignal>();
-                OnGoalAction();
-            }
+            if (_basket.IsClear)
+                OnGoalAction(1, ClearGoalSignal);
+            
+            else  
+                OnGoalAction(0, GoalSignal);
+
             
         }
         
-
-        void OnGoalAction()
+        else if (_spawnManager.BasketPull[_spawnManager.ActiveBasket].gameObject == _basket.gameObject)
+            OnGoalAction(0, BallReturnSignal);
+        
+        
+        void OnGoalAction(int row, string signalClass)
         {
-
+            
+            _spawnManager.ChangeRowValue(row);
+            switch (signalClass)
+            {
+                case GoalSignal:
+                    _signalBus.Fire<GoalSignal>();
+                    break;
+                
+                case ClearGoalSignal:
+                    _signalBus.Fire(new ClearGoalSignal(){clearInRow = _spawnManager.ClearInRow});
+                    break;
+                    
+                case BallReturnSignal:
+                    _signalBus.Fire<BallReturnSignal>();
+                    break;
+            }
             ballColl.ToggleAttachBall(true);
             basketDown.GetComponent<PolygonCollider2D>().enabled = true;
         }
     }
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        var ballColl = collision.gameObject.GetComponent<PlayerController>();
-        if (ballColl)
-        {
-           // ballColl.DisActiveControl();
-        }
-    }
-
-
 }

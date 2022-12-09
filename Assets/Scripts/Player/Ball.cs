@@ -2,62 +2,52 @@ using UnityEngine;
 using Zenject;
 using Zenject.Signals;
 
-
 public class Ball : MonoBehaviour
 {
-    
-    private Rigidbody2D ballRb;
-    private bool isAttached;
-    private AudioController audioController;
-    private AudioSource audioSource;
+    private AudioController _audioController;
+    private AudioSource _audioSource;
     private SignalBus _signalBus;
     
-    private static readonly string basketTopTag = "BasketTop";
-    private static readonly string leftBorderTag = "LeftBorder";
-    private static readonly string rightBorderTag = "RightBorder";
+    private const string BasketTopTag = "BasketTop";
+    private const string LeftBorderTag = "LeftBorder";
+    private const string RightBorderTag = "RightBorder";
 
-    public bool IsAttached => isAttached;
-
-    public Rigidbody2D BallRb => ballRb;
+    public bool IsAttached { get; private set; }
+    public Rigidbody2D BallRb { get; private set; }
 
     [Inject]
     public void Construct(SignalBus signalBus)
     {
         _signalBus = signalBus;
-        
     }
 
     private void Awake()
     {
-        ballRb = GetComponent<Rigidbody2D>();
-        ballRb.isKinematic = true;
-        audioController = GetComponent<AudioController>();
-        audioSource = GetComponent<AudioSource>();
+        BallRb = GetComponent<Rigidbody2D>();
+        BallRb.isKinematic = true;
+        _audioController = GetComponent<AudioController>();
+        _audioSource = GetComponent<AudioSource>();
     }
 
     public void ToggleAttachBall(bool toggle)
     {
-        isAttached = toggle;
+        IsAttached = toggle;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag(basketTopTag))
-        {
-            collision.gameObject.GetComponentInParent<Basket>().DisactivateClearBasket();
-        }
-
-        if(collision.gameObject.CompareTag(basketTopTag) || collision.gameObject.CompareTag(leftBorderTag)|| collision.gameObject.CompareTag(rightBorderTag))
-        {
-            audioController.PlayKnokAudio();
-        }
-
+        var col = collision.gameObject;
         
+        if (col.CompareTag(BasketTopTag))
+            col.GetComponentInParent<Basket>().OffClearBasket();
+
+        if(col.CompareTag(BasketTopTag) || col.CompareTag(LeftBorderTag)|| col.CompareTag(RightBorderTag))
+            _audioController.PlayKnokAudio();
     }
 
     public void ToggleAudio(bool toggle)
     {
-        audioSource.mute = !toggle;
+        _audioSource.mute = !toggle;
     }
 
     public void StarFire()

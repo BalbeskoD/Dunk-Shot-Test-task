@@ -7,7 +7,6 @@ using Cysharp.Threading.Tasks;
 
 public class SpawnManager : MonoBehaviour
 {
-    [SerializeField] private GameObject ball;
     [SerializeField] private Vector2 ballOffset;
     [SerializeField] private GameObject star;
     [SerializeField] private List<Basket> basketPull;
@@ -15,26 +14,27 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private Vector2 basket1SpawnPlace;
     [SerializeField] private Vector2 basket2SpawnPlace;
     [SerializeField] private Vector3 starOffset = new Vector3(0, 0.5f, 0);
-    private int activeBasket;
-    private int notActiveBasket = 1;
-    private int _clearInRow;
     private SignalBus _signalBus;
-    
-
+    private Basket _ballActiveBasket;
+    private Basket _ballNotActiveBasket;
+    private Ball _ball;
     public List<Basket> BasketPull => basketPull;
-    public int ActiveBasket => activeBasket;
+    public int ActiveBasket { get; private set; }
+    public int NotActiveBasket { get; private set; } = 1;
 
-    public int ClearInRow => _clearInRow;
-    public GameObject Star => star;
+    public int ClearInRow { get; private set; }
 
     [Inject]
-    public void Construct(SignalBus signalBus)
+    public void Construct(SignalBus signalBus, Ball ball)
     {
         _signalBus = signalBus;
+        _ball = ball;
     }
 
     private void Awake()
     {
+        _ballActiveBasket = basketPull[ActiveBasket];
+        _ballNotActiveBasket= basketPull[NotActiveBasket];
         _signalBus.Subscribe<GoalSignal>(OnGoal);
         _signalBus.Subscribe<ClearGoalSignal>(OnClearGoal);
         _signalBus.Subscribe<GameRestartSignal>(OnRestart);
@@ -51,10 +51,10 @@ public class SpawnManager : MonoBehaviour
 
     public void SpawnBall()
     {
-        ball.GetComponent<Ball>().BallRb.transform.position = new Vector2(basketPull[activeBasket].transform.position.x, basketPull[activeBasket].transform.position.y + ballOffset.y);
-        ball.GetComponent<Ball>().BallRb.velocity = Vector2.zero;
-        ball.gameObject.SetActive(true);
-        basketPull[activeBasket].transform.rotation = new Quaternion(0, 0, 0, 0);
+        _ball.BallRb.transform.position = new Vector2(_ballActiveBasket.transform.position.x, _ballActiveBasket.transform.position.y + ballOffset.y);
+        _ball.GetComponent<Ball>().BallRb.velocity = Vector2.zero;
+        _ball.gameObject.SetActive(true);
+       _ballActiveBasket.transform.rotation = new Quaternion(0, 0, 0, 0);
     }
 
     private void SpawnStar()
@@ -62,7 +62,7 @@ public class SpawnManager : MonoBehaviour
         int rand = Random.Range(0, 5);
         if (rand == 0)
         {
-            Instantiate(star, basketPull[notActiveBasket].transform.position + starOffset, new Quaternion(0, 0, 0, 0));
+            Instantiate(star, _ballNotActiveBasket.transform.position + starOffset, new Quaternion(0, 0, 0, 0));
         }
     }
 
@@ -74,21 +74,24 @@ public class SpawnManager : MonoBehaviour
         SpawnNewBasket();
         SpawnStar();
     }
+    
     private void OnStart()
     {
         Time.timeScale = 1;
     }
+    
     private void OnRestart()
     {
-        activeBasket=0;
-        notActiveBasket=1;
-        basketPull[activeBasket].gameObject.transform.position = basket1SpawnPlace;
-        basketPull[activeBasket].gameObject.transform.rotation = new Quaternion(0, 0, 0, 0);
-        basketPull[notActiveBasket].gameObject.transform.position = basket2SpawnPlace;
-        basketPull[notActiveBasket].gameObject.transform.rotation = new Quaternion(0, 0, 0, 0);
+        ActiveBasket=0;
+        NotActiveBasket=1;
+        var trans = _ballActiveBasket.gameObject.transform;
+        var trans2 =  _ballNotActiveBasket.gameObject.transform;
+        trans.position = basket1SpawnPlace;
+        trans.rotation = new Quaternion(0, 0, 0, 0);
+        trans2.position = basket2SpawnPlace;
+        trans2.rotation = new Quaternion(0, 0, 0, 0);
         SpawnBall();
     }
-
 
     private async void OnClearGoal()
     {
@@ -97,87 +100,65 @@ public class SpawnManager : MonoBehaviour
         await UniTask.Delay(200);
         SpawnNewBasket();
         SpawnStar();
-
     }
 
     private void SwitchBasket()
     {
-        if (activeBasket == 0)
+        if (ActiveBasket == 0)
         {
-            activeBasket++;
-            notActiveBasket--;
+            ActiveBasket++;
+            NotActiveBasket--;
         }
         else
         {
-            activeBasket--;
-            notActiveBasket++;
+            ActiveBasket--;
+            NotActiveBasket++;
         }
     }
 
     private void SpawnNewBasket()
     {
-        var _notActiveBasket = basketPull[notActiveBasket].gameObject;
-        _notActiveBasket.SetActive(false);
-        float offsetX;
+        var notActiveBasket = _ballNotActiveBasket.gameObject.transform;
+        _ballNotActiveBasket.gameObject.SetActive(false);
+        
+        var offsetY = Random.Range(4f, 5f);
+        var offsetX = NotActiveBasket == 0 ? Random.Range(-1.6f, -0.3f): Random.Range(0.3f, 1.6f);
+        var random = Random.Range(0, 2);
+        
         float rotateZ;
-        float offsetY = Random.Range(4f, 5f);
-
-        int random = Random.Range(0, 2);
         switch (random)
         {
             case 0:
                 rotateZ = 0;
                 break;
             case 1:
-                rotateZ = notActiveBasket == 0 ? basketAngleOffset : -basketAngleOffset;
+                rotateZ = NotActiveBasket == 0 ? basketAngleOffset : -basketAngleOffset;
                 break;
             default:
                 rotateZ = 0;
                 break;
         }
-
-
-        if (notActiveBasket == 0)
-        {
-            offsetX = Random.Range(-1.6f, -0.3f);
-        }
-        else {
-            offsetX = Random.Range(0.3f, 1.6f);
-        }
-
-
-        _notActiveBasket.transform.position = new Vector3(offsetX, _notActiveBasket.transform.position.y + offsetY, _notActiveBasket.transform.position.z);
-        _notActiveBasket.transform.rotation = new Quaternion(0, 0, 0, 0);
-        _notActiveBasket.transform.Rotate(Vector3.back, rotateZ);
-        _notActiveBasket.SetActive(true);
+        
+        notActiveBasket.position = new Vector3(offsetX, notActiveBasket.position.y + offsetY, notActiveBasket.position.z);
+        notActiveBasket.rotation = new Quaternion(0, 0, 0, 0);
+        notActiveBasket.Rotate(Vector3.back, rotateZ);
+        _ballNotActiveBasket.gameObject.SetActive(true);
     }
 
     private void SetUpActiveBasket()
     {
-        var _activeBasket = basketPull[activeBasket].gameObject;
-        Sequence sequence = DOTween.Sequence();
+        var _activeBasket = _ballActiveBasket.gameObject;
+        var sequence = DOTween.Sequence();
         sequence
             .Append(_activeBasket.transform.DORotate(Vector3.zero, 0f))
             .Append(_activeBasket.GetComponent<Basket>().BasketDown.transform.DOScaleY(1.3f, 0.2f))
             .Insert(0, _activeBasket.GetComponent<Basket>().BallPoint.transform.DOLocalMoveY(-0.3f, 0.2f))
             .Append(_activeBasket.GetComponent<Basket>().BasketDown.transform.DOScaleY(1f, 0.2f))
             .Insert(0.2f, _activeBasket.GetComponent<Basket>().BallPoint.transform.DOLocalMoveY(-0.2f, 0.2f));
-
-
-
     }
-
 
     public void ChangeRowValue(int value)
-    {   
-        if(value == 0)
-        {
-            _clearInRow = 0;
-            return;
-        }
-        _clearInRow += value;
+    {
+        ClearInRow = value == 0 ? 0 : ClearInRow += value;
     }
-
-
-    
 }
