@@ -13,6 +13,7 @@ public class BasketCollisionDetector : MonoBehaviour
     private const string ClearGoalSignal = "ClearGoalSignal";
     private const string BallReturnSignal = "BallReturnSignal";
     public GameObject BasketDown => basketDown;
+    
 
     [Inject]
     public void Construct(SignalBus signalBus, SpawnManager spawnManager)
@@ -29,8 +30,9 @@ public class BasketCollisionDetector : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         var ballColl = collision.gameObject.GetComponent<Ball>();
-        
         if (!ballColl) return;
+        if (_spawnManager.IsColided) return;
+        
         
         if (_spawnManager.BasketPull[_spawnManager.ActiveBasket].gameObject != _basket.gameObject)
         {

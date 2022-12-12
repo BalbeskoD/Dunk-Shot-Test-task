@@ -15,12 +15,11 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private Vector2 basket2SpawnPlace;
     [SerializeField] private Vector3 starOffset = new Vector3(0, 0.5f, 0);
     private SignalBus _signalBus;
-    private Basket _ballActiveBasket;
-    private Basket _ballNotActiveBasket;
     private Ball _ball;
     public List<Basket> BasketPull => basketPull;
     public int ActiveBasket { get; private set; }
     public int NotActiveBasket { get; private set; } = 1;
+    public bool IsColided { get; private set; } 
 
     public int ClearInRow { get; private set; }
 
@@ -33,12 +32,11 @@ public class SpawnManager : MonoBehaviour
 
     private void Awake()
     {
-        _ballActiveBasket = basketPull[ActiveBasket];
-        _ballNotActiveBasket= basketPull[NotActiveBasket];
         _signalBus.Subscribe<GoalSignal>(OnGoal);
         _signalBus.Subscribe<ClearGoalSignal>(OnClearGoal);
         _signalBus.Subscribe<GameRestartSignal>(OnRestart);
         _signalBus.Subscribe<GameStartSignal>(OnStart);
+        _signalBus.Subscribe<ShotSignal>(OnShot);
     }
 
     private void OnDestroy()
@@ -47,14 +45,15 @@ public class SpawnManager : MonoBehaviour
         _signalBus.Unsubscribe<ClearGoalSignal>(OnClearGoal);
         _signalBus.Unsubscribe<GameRestartSignal>(OnRestart);
         _signalBus.Unsubscribe<GameStartSignal>(OnStart);
+        _signalBus.Unsubscribe<ShotSignal>(OnShot);
     }
 
     public void SpawnBall()
     {
-        _ball.BallRb.transform.position = new Vector2(_ballActiveBasket.transform.position.x, _ballActiveBasket.transform.position.y + ballOffset.y);
+        _ball.BallRb.transform.position = new Vector2(basketPull[ActiveBasket].transform.position.x, basketPull[ActiveBasket].transform.position.y + ballOffset.y);
         _ball.GetComponent<Ball>().BallRb.velocity = Vector2.zero;
         _ball.gameObject.SetActive(true);
-       _ballActiveBasket.transform.rotation = new Quaternion(0, 0, 0, 0);
+        basketPull[ActiveBasket].transform.rotation = new Quaternion(0, 0, 0, 0);
     }
 
     private void SpawnStar()
@@ -62,17 +61,23 @@ public class SpawnManager : MonoBehaviour
         int rand = Random.Range(0, 5);
         if (rand == 0)
         {
-            Instantiate(star, _ballNotActiveBasket.transform.position + starOffset, new Quaternion(0, 0, 0, 0));
+            Instantiate(star, basketPull[NotActiveBasket].transform.position + starOffset, new Quaternion(0, 0, 0, 0));
         }
     }
 
+    private void OnShot()
+    {
+        IsColided = false;
+    }
     private async void OnGoal()
     {
+        //IsColided = true;
         SwitchBasket();
         SetUpActiveBasket();
         await UniTask.Delay(200);
         SpawnNewBasket();
         SpawnStar();
+        
     }
     
     private void OnStart()
@@ -84,8 +89,8 @@ public class SpawnManager : MonoBehaviour
     {
         ActiveBasket=0;
         NotActiveBasket=1;
-        var trans = _ballActiveBasket.gameObject.transform;
-        var trans2 =  _ballNotActiveBasket.gameObject.transform;
+        var trans = basketPull[ActiveBasket].gameObject.transform;
+        var trans2 =  basketPull[NotActiveBasket].gameObject.transform;
         trans.position = basket1SpawnPlace;
         trans.rotation = new Quaternion(0, 0, 0, 0);
         trans2.position = basket2SpawnPlace;
@@ -95,6 +100,7 @@ public class SpawnManager : MonoBehaviour
 
     private async void OnClearGoal()
     {
+        //IsColided = true;
         SwitchBasket();
         SetUpActiveBasket();
         await UniTask.Delay(200);
@@ -118,8 +124,8 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnNewBasket()
     {
-        var notActiveBasket = _ballNotActiveBasket.gameObject.transform;
-        _ballNotActiveBasket.gameObject.SetActive(false);
+        var notActiveBasket = basketPull[NotActiveBasket].gameObject.transform;
+        basketPull[NotActiveBasket].gameObject.SetActive(false);
         
         var offsetY = Random.Range(4f, 5f);
         var offsetX = NotActiveBasket == 0 ? Random.Range(-1.6f, -0.3f): Random.Range(0.3f, 1.6f);
@@ -142,12 +148,12 @@ public class SpawnManager : MonoBehaviour
         notActiveBasket.position = new Vector3(offsetX, notActiveBasket.position.y + offsetY, notActiveBasket.position.z);
         notActiveBasket.rotation = new Quaternion(0, 0, 0, 0);
         notActiveBasket.Rotate(Vector3.back, rotateZ);
-        _ballNotActiveBasket.gameObject.SetActive(true);
+        basketPull[NotActiveBasket].gameObject.SetActive(true);
     }
 
     private void SetUpActiveBasket()
     {
-        var _activeBasket = _ballActiveBasket.gameObject;
+        var _activeBasket = basketPull[ActiveBasket].gameObject;
         var sequence = DOTween.Sequence();
         sequence
             .Append(_activeBasket.transform.DORotate(Vector3.zero, 0f))

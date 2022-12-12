@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
@@ -9,8 +10,6 @@ public class PlayerController : MonoBehaviour
     private Ball _ball;
     private SpawnManager _spawnManager;
     private SignalBus _signalBus;
-    private Basket _activeBasket;
-    private PolygonCollider2D _activeBasketCollider;
     
     private Vector2 _mousePos;
     private Vector2 _startMousePos;
@@ -18,7 +17,7 @@ public class PlayerController : MonoBehaviour
     
     private float _screenHeight;
     private float _totalScale;
-    private float _playerLaunchSpeed = 2.0f;
+    private readonly float _playerLaunchSpeed = 2.0f;
     
     private bool _isControlable;
     
@@ -38,9 +37,6 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        _activeBasket = _spawnManager.BasketPull[_spawnManager.ActiveBasket];
-        _activeBasketCollider = _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown
-            .GetComponent<PolygonCollider2D>();
         _screenHeight = Screen.height/2.5f;
         _signalBus.Subscribe<GoalSignal>(ActiveControl);
         _signalBus.Subscribe<ClearGoalSignal>(ActiveControl);
@@ -60,12 +56,11 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (_ball.IsAttached)
-        {
-            _ball.BallRb.transform.position = _activeBasket.BallPoint.transform.position;
-            _ball.BallRb.rotation = 0;
-        }
-
+        if (!_ball.IsAttached) return;
+        
+        _ball.BallRb.transform.position = _spawnManager.BasketPull[_spawnManager.ActiveBasket].BallPoint.transform.position;
+        _ball.BallRb.rotation = 0;
+        
         if (!_isControlable) return;
         
         if (Input.GetMouseButtonDown(0))
@@ -83,6 +78,12 @@ public class PlayerController : MonoBehaviour
        
     }
 
+    private void FixedUpdate()
+    {
+        
+        
+    }
+
     private void UpdateMousePosition()
     {
         _mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
@@ -90,13 +91,15 @@ public class PlayerController : MonoBehaviour
     
     private void OnMouseAction()
     {
+        var activeBasket = _spawnManager.BasketPull[_spawnManager.ActiveBasket];
+        
         UpdateMousePosition();
 
         var tempAngle = Mathf.Atan2(_startMousePos.y - _mousePos.y, _startMousePos.x - _mousePos.x) * Mathf.Rad2Deg;
         if (tempAngle != 0)
         {
             float angle = tempAngle - 90;
-            _activeBasket.gameObject.transform.rotation = Quaternion.Euler(0, 0, angle);
+            activeBasket.gameObject.transform.rotation = Quaternion.Euler(0, 0, angle);
         }
 
         var tempScreenVector = Mathf.Abs(Mathf.Max(_startMousePos.y - _mousePos.y, _startMousePos.x - _mousePos.x));
@@ -104,13 +107,13 @@ public class PlayerController : MonoBehaviour
         
         if (_totalScale >= 1.8)
         {
-            _activeBasket.BasketDown.transform.localScale = new Vector3(1, 1.8f, 1);
-            _activeBasket.SetBallPointPosY(-0.47f);
+            activeBasket.BasketDown.transform.localScale = new Vector3(1, 1.8f, 1);
+            activeBasket.SetBallPointPosY(-0.47f);
         }
         else
         {
-            _activeBasket.BasketDown.transform.localScale = new Vector3(1, _totalScale, 1);
-            _activeBasket.SetBallPointPosY(_totalScale/-4f);
+            activeBasket.BasketDown.transform.localScale = new Vector3(1, _totalScale, 1);
+            activeBasket.SetBallPointPosY(_totalScale/-4f);
         }
     }
 
@@ -118,29 +121,31 @@ public class PlayerController : MonoBehaviour
     
     private async void OnMouseUpAction()
     {
+        var activeBasket = _spawnManager.BasketPull[_spawnManager.ActiveBasket];
+        var activeBasketCollider = _spawnManager.BasketPull[_spawnManager.ActiveBasket].BasketDown.GetComponent<PolygonCollider2D>();
         var height = Vector2.ClampMagnitude(new Vector2((_startMousePos.x - _mousePos.x), (_startMousePos.y - _mousePos.y)), _totalScale);
         
             
         _ball.BallRb.isKinematic = false;
         _ball.ToggleAttachBall(false);
         
-        _totalForce =  _totalScale < 1.8 ? (height * _playerLaunchSpeed * _totalScale) : (height * _playerLaunchSpeed * 1.8f);
+        _totalForce =  _totalScale < 1.8 ? (_playerLaunchSpeed * _totalScale * height) : (_playerLaunchSpeed * 1.8f * height);
        
         _ball.BallRb.AddForce(_totalForce, ForceMode2D.Impulse);
         
         Sequence mySequence = DOTween.Sequence();
         mySequence
-            .Append(_activeBasket.BasketDown.transform.DOScale(Vector3.one, 0.05f));
+            .Append(activeBasket.BasketDown.transform.DOScale(Vector3.one, 0.05f));
 
-        _activeBasket.SetBallPointPosY(-0.2f);
-        _activeBasketCollider.enabled = false;
-        _activeBasket.OnClearBasket();
+        activeBasket.SetBallPointPosY(-0.2f);
+        activeBasketCollider.enabled = false;
+        activeBasket.OnClearBasket();
         
         _signalBus.Fire<ShotSignal>();
 
         await UniTask.Delay(100);
         
-        _activeBasketCollider.enabled = true;
+        activeBasketCollider.enabled = true;
         DisActiveControl();
     }
 

@@ -12,9 +12,9 @@ public class Borders : MonoBehaviour
     private SignalBus _signalBus;
 
 
-    private float width;
-    private float height;
-    private bool isGameActive;
+    private float _width;
+    private const  float DownBorderOffsetY = 4.0f;
+    private bool _isGameActive;
 
     [Inject]
     public void Construct(SpawnManager spawnManager, PlayerController playerController, SignalBus signalBus)
@@ -28,8 +28,7 @@ public class Borders : MonoBehaviour
     {
         _signalBus.Subscribe<GameStartSignal>(OnStart);
         _signalBus.Subscribe<GameRestartSignal>(OnRestart);
-        width = Camera.main.orthographicSize * Screen.width / Screen.height;
-        height = Camera.main.orthographicSize * Screen.height / Screen.width / 2;
+        _width = Camera.main.orthographicSize * Screen.width / Screen.height;
     }
     private void OnDestroy()
     {
@@ -41,17 +40,17 @@ public class Borders : MonoBehaviour
         
         if (bordersLocations == BordersLocations.Left)
         {
-            transform.position = Camera.main.transform.position - new Vector3(width, 0,10.0f);
+            transform.position = Camera.main.transform.position - new Vector3(_width, 0,10.0f);
         }
         else if (bordersLocations == BordersLocations.Right)
         {
-            transform.position = Camera.main.transform.position + new Vector3(width, 0, 10.0f);
+            transform.position = Camera.main.transform.position + new Vector3(_width, 0, 10.0f);
         }
         else if (bordersLocations == BordersLocations.Down)
         {
             if (_playerController.IsControlable)
             {
-                transform.position = Camera.main.transform.position - new Vector3(0, height, 0);
+                transform.position = new Vector3(Camera.main.transform.position.x, _spawnManager.BasketPull[_spawnManager.ActiveBasket].transform.position.y - DownBorderOffsetY, Camera.main.transform.position.z);
             }
             
         }
@@ -60,7 +59,7 @@ public class Borders : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         var ball = collision.gameObject.GetComponent<Ball>();
-        if (ball && isGameActive) 
+        if (ball && _isGameActive) 
         {
             _signalBus.Fire<FinishSignal>();
         }
@@ -72,11 +71,11 @@ public class Borders : MonoBehaviour
 
     private void OnStart()
     {
-        isGameActive = true;
+        _isGameActive = true;
     }
     private void OnRestart()
     {
-        isGameActive = false;
+        _isGameActive = false;
     }
 }
 

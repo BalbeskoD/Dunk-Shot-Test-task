@@ -10,7 +10,7 @@ using Configs;
 
 namespace Managers
 {
-    public class GameManager : IInitializable, IDisposable, ITickable
+    public class GameManager : IInitializable, IDisposable
     {
 
         private readonly DiContainer _diContainer;
@@ -18,9 +18,6 @@ namespace Managers
         private readonly SignalBus _signalBus;
 
         private GameStates _gameStates;
-        private List<string> _names;
-        private float _timer;
-        private bool _isGame;
 
         private GameStates GameState
         {
@@ -37,11 +34,9 @@ namespace Managers
                         break;
 
                     case GameStates.Game:
-                        OnGame();
                         break;
 
                     case GameStates.Lose:
-                        OnGameEnd();
                         break;
 
                     case GameStates.Pause:
@@ -116,25 +111,5 @@ namespace Managers
         {
             ChangeGameState(GameStates.Game);
         }
-
-        private void OnGame()
-        {
-            _isGame = true;
-        }
-
-        private void OnGameEnd()
-        {
-            
-            _isGame = false;
-        }
-
-        public void Tick()
-        {
-            if (!_isGame)
-                return;
-        }
     }
-   
-
-
 }
